@@ -1,0 +1,13 @@
+# Scan output — never commit recon data about targets
+results/
+*.report.html
+report.html
+report.json
+
+# Python bytecode (embeds absolute source paths)
+__pycache__/
+*.py[cod]
+
+# Editor / OS cruft
+.DS_Store
+*.swp
