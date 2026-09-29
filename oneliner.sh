@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-liner web enum. Usage: ./oneliner.sh <host>   (authorized targets only)
+# ReconRaptor one-liner. Usage: ./oneliner.sh <host>   (authorized targets only)
 set -uo pipefail
 T="${1:?usage: oneliner.sh <host>}"; O="results/${T%%:*}"; mkdir -p "$O"
 have() { command -v "$1" >/dev/null 2>&1; }

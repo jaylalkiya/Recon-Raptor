@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
-# web-enum.sh - One-liner-friendly web enumeration wrapper for Kali Linux
+# recon-raptor.sh - ReconRaptor: web enumeration wrapper for Kali Linux
 #
 # Purpose: Automate common recon steps against an authorized web target.
-# Usage:   ./web-enum.sh <target> [output_dir]
-#          ./web-enum.sh example.com
-#          ./web-enum.sh https://10.10.10.10 results/box1
+# Usage:   ./recon-raptor.sh <target> [output_dir]
+#          ./recon-raptor.sh example.com
+#          ./recon-raptor.sh https://10.10.10.10 results/box1
 #
 # ONLY run this against systems you own or are explicitly authorized to test.
 #
@@ -114,7 +114,7 @@ run() {
 
 # ---------- banner ----------
 echo "=================================================="
-echo "  Web Enumeration :: target = $HOST"
+echo "  ReconRaptor :: target = $HOST"
 echo "  URL   = $URL"
 echo "  Out   = $OUTDIR"
 echo "  Date  = $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
@@ -261,7 +261,7 @@ fi  # want nuclei
 SUMMARY="$OUTDIR/00_summary.txt"
 {
     echo "=================================================="
-    echo " Web Enumeration Summary"
+    echo " ReconRaptor Summary"
     echo " Target : $HOST   ($URL)"
     echo " Date   : $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
     echo " Host up: $([[ $HOST_UP -eq 1 ]] && echo yes || echo 'unknown/no')"

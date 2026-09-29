@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-web-enum-gui.py - Hacker-themed Tkinter front-end for web-enum.sh
+recon-raptor-gui.py - Hacker-themed Tkinter front-end for recon-raptor.sh
 
 Two tabs:
   [ Scan ]     enter a target, pick steps/presets, watch live colour output
@@ -8,7 +8,7 @@ Two tabs:
 
 Authorized targets only. Run only against systems you own or may test.
 
-Usage:  python3 web-enum-gui.py
+Usage:  python3 recon-raptor-gui.py
 Needs:  python3-tk  (sudo apt install python3-tk -- usually preinstalled on Kali)
 """
 import os
@@ -26,7 +26,7 @@ except Exception:  # pragma: no cover
     report = None
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-SCRIPT = os.path.join(SCRIPT_DIR, "web-enum.sh")
+SCRIPT = os.path.join(SCRIPT_DIR, "recon-raptor.sh")
 RESULTS_DIR = os.path.join(SCRIPT_DIR, "results")
 MAX_VIEW_BYTES = 2_000_000  # don't load huge files fully into the viewer
 
@@ -44,15 +44,16 @@ FONT    = ("DejaVu Sans Mono", 10)
 FONT_B  = ("DejaVu Sans Mono", 11, "bold")
 
 BANNER = r"""
- __      __      _      _____
- \ \    / /     | |    | ____|_ __  _   _ _ __ ___
-  \ \/\/ /  ___ | |__  |  _| | '_ \| | | | '_ ` _ \
-   \_/\_/  / -_)| '_ \ | |___| | | | |_| | | | | | |
-          \___||_.__/ |_____|_| |_|\__,_|_| |_| |_|
+ ____                      ____             _
+|  _ \ ___  ___ ___  _ __ |  _ \ __ _ _ __ | |_ ___  _ __
+| |_) / _ \/ __/ _ \| '_ \| |_) / _` | '_ \| __/ _ \| '__|
+|  _ <  __/ (_| (_) | | | |  _ < (_| | |_) | || (_) | |
+|_| \_\___|\___\___/|_| |_|_| \_\__,_| .__/ \__\___/|_|
+                                     |_|
         [ authorized recon only // stay legal ]
 """
 
-# Steps -> the RUN_STEPS env token the script understands (see web-enum.sh).
+# Steps -> the RUN_STEPS env token the script understands (see recon-raptor.sh).
 STEPS = [
     ("DNS / WHOIS", "dns"),
     ("Subdomain enum", "subs"),
@@ -107,7 +108,7 @@ class EnumGUI:
         self.cur_target_dir = None
         self.file_index = []  # parallel to listbox rows: absolute paths
 
-        root.title("Web Enum // recon console")
+        root.title("ReconRaptor // recon console")
         root.geometry("960x760")
         root.minsize(800, 600)
         root.configure(bg=BG)
@@ -219,7 +220,7 @@ class EnumGUI:
                            highlightthickness=0, anchor="w").grid(
                 row=i // 4, column=i % 4, sticky="w", padx=10, pady=4)
 
-        # --- advanced options (map to env vars web-enum.sh reads) ---
+        # --- advanced options (map to env vars recon-raptor.sh reads) ---
         opt = tk.LabelFrame(root, text=" options ", font=FONT, fg=FG, bg=BG,
                             bd=1, relief="groove", labelanchor="nw")
         opt.pack(fill="x", **pad)
@@ -654,7 +655,7 @@ class EnumGUI:
         env = dict(os.environ)
         env["RUN_STEPS"] = ",".join(steps)
 
-        # Advanced options -> env vars web-enum.sh honours. Only set non-empty
+        # Advanced options -> env vars recon-raptor.sh honours. Only set non-empty
         # entries so the script's own defaults still apply when a field is blank.
         wl = self.wl_entry.get().strip()
         if wl:

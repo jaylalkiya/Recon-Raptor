@@ -1,12 +1,15 @@
 <div align="center">
 
 ```
-██     ██ ███████ ██████       ███████ ███    ██ ██    ██ ███    ███
-██     ██ ██      ██   ██      ██      ████   ██ ██    ██ ████  ████
-██  █  ██ █████   ██████       █████   ██ ██  ██ ██    ██ ██ ████ ██
-██ ███ ██ ██      ██   ██      ██      ██  ██ ██ ██    ██ ██  ██  ██
- ███ ███  ███████ ██████       ███████ ██   ████  ██████  ██      ██
+ ____                      ____             _
+|  _ \ ___  ___ ___  _ __ |  _ \ __ _ _ __ | |_ ___  _ __
+| |_) / _ \/ __/ _ \| '_ \| |_) / _` | '_ \| __/ _ \| '__|
+|  _ <  __/ (_| (_) | | | |  _ < (_| | |_) | || (_) | |
+|_| \_\___|\___\___/|_| |_|_| \_\__,_| .__/ \__\___/|_|
+                                     |_|
 ```
+
+# ReconRaptor
 
 **`[ chained web recon for Kali — one target in, a ranked report out ]`**
 
@@ -15,7 +18,8 @@
 ![Platform](https://img.shields.io/badge/platform-Kali%20Linux-1f8a12?style=flat-square&logo=kalilinux&logoColor=39ff14&labelColor=0a0e0a)
 ![GUI](https://img.shields.io/badge/GUI-Tkinter-1f8a12?style=flat-square&labelColor=0a0e0a)
 ![Tests](https://img.shields.io/badge/tests-passing-39ff14?style=flat-square&labelColor=0a0e0a)
-![License](https://img.shields.io/badge/use-authorized%20only-ff3860?style=flat-square&labelColor=0a0e0a)
+![License](https://img.shields.io/badge/license-MIT-39ff14?style=flat-square&labelColor=0a0e0a)
+![Use](https://img.shields.io/badge/use-authorized%20only-ff3860?style=flat-square&labelColor=0a0e0a)
 
 </div>
 
@@ -27,7 +31,7 @@
 > Run these **only** against systems you own or have **explicit written
 > permission** to test. Unauthorized scanning is illegal.
 
-`web-enum` chains the common recon tools (`nmap`, `whatweb`, `curl`,
+**ReconRaptor** chains the common recon tools (`nmap`, `whatweb`, `curl`,
 `gobuster`/`feroxbuster`, `nikto`, `nuclei`, `subfinder`/`httpx`) into a single
 run, saves every step to a per-target folder, and rolls the findings up into a
 severity-ranked HTML + JSON report — from the CLI or a dark, terminal-style GUI.
@@ -57,32 +61,45 @@ severity-ranked HTML + JSON report — from the CLI or a dark, terminal-style GU
 
 ---
 
-## ▚ Files
+## ▚ Install (fresh Kali box)
 
-| File | What it does |
-|------|--------------|
-| `web-enum.sh` | Full pipeline: reachability check (HTTPS auto-probe), DNS/whois, subdomain enum, nmap, HTTP fingerprint, robots, dir brute, nikto, nuclei, plus a `00_summary.txt` roll-up. Per-step timeouts; skips missing tools gracefully; **resumes** by skipping completed steps (`FORCE=1` to redo). Emits **structured output** (nmap XML, nikto JSON, nuclei JSONL) alongside human-readable text. |
-| `oneliner.sh` | Compact chain (subdomains + nuclei) for quick runs; guards each tool. |
-| `web-enum-gui.py` | Hacker-themed Tkinter console (Scan / Dashboard / Results) with presets, an options panel (wordlist, timeouts, force re-scan), colour-coded live output, a severity dashboard, and one-click HTML report. Wraps `web-enum.sh`. |
-| `report.py` | Parses a results folder (prefers structured tool output, falls back to text), ranks findings by severity, renders a self-contained HTML report **and** a machine-readable `report.json`. |
-| `tests/` | `unittest` suite for `report.py`'s parsers. |
+```console
+# 1. Core tools (most ship with Kali; this makes sure)
+$ sudo apt update
+$ sudo apt install -y nmap whatweb curl nikto gobuster ffuf \
+      dnsutils whois python3-tk seclists
+
+# 2. Go-based recon tools (if not already present)
+$ sudo apt install -y subfinder httpx-toolkit nuclei   # or install via `go install`
+
+# 3. Update nuclei templates (first run only)
+$ nuclei -update-templates
+
+# 4. Grab ReconRaptor and make the scripts executable
+$ git clone <your-repo-url> reconraptor   # or unzip the release
+$ cd reconraptor
+$ chmod +x recon-raptor.sh oneliner.sh
+
+# 5. Sanity check
+$ python3 -m unittest discover -s tests
+```
+
+Missing tools are skipped gracefully — you don't need every one of them.
 
 ---
 
 ## ▚ Quick start
 
 ```console
-$ chmod +x web-enum.sh oneliner.sh
-
 # Full run (writes results/<host>/)
-$ ./web-enum.sh example.com
-$ ./web-enum.sh https://10.10.10.10 results/box1
+$ ./recon-raptor.sh example.com
+$ ./recon-raptor.sh https://10.10.10.10 results/box1
 
 # Quick one-liner chain
 $ ./oneliner.sh 10.10.10.10
 
 # GUI (desktop app)
-$ python3 web-enum-gui.py
+$ python3 recon-raptor-gui.py
 ```
 
 Results land under `results/<host>/`, with `00_summary.txt` as the roll-up.
@@ -91,7 +108,7 @@ Results land under `results/<host>/`, with `00_summary.txt` as the roll-up.
 
 ## ▚ GUI
 
-A dark, terminal-style front-end for `web-enum.sh` with three tabs.
+A dark, terminal-style front-end for `recon-raptor.sh` with three tabs.
 
 **`Scan`**
 - Enter the **target** (Enter runs it) and, optionally, an **output dir**.
@@ -136,7 +153,7 @@ Pick which steps run via the `RUN_STEPS` env var (comma-separated tokens
 CLI honours it too:
 
 ```console
-$ RUN_STEPS=nmap,nuclei ./web-enum.sh target.tld
+$ RUN_STEPS=nmap,nuclei ./recon-raptor.sh target.tld
 ```
 
 ---
@@ -145,19 +162,31 @@ $ RUN_STEPS=nmap,nuclei ./web-enum.sh target.tld
 
 ```console
 # Different wordlist
-$ WL_DIR=/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt ./web-enum.sh target.tld
+$ WL_DIR=/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt ./recon-raptor.sh target.tld
 
 # Tune timeouts (seconds): per-request, hard cap per step, nikto's own budget
-$ NET_TIMEOUT=30 STEP_TIMEOUT=900 NIKTO_TIMEOUT=300 ./web-enum.sh target.tld
+$ NET_TIMEOUT=30 STEP_TIMEOUT=900 NIKTO_TIMEOUT=300 ./recon-raptor.sh target.tld
 
 # Resume a partial run (skips completed steps) ...
-$ ./web-enum.sh target.tld
+$ ./recon-raptor.sh target.tld
 # ... or force a full re-scan
-$ FORCE=1 ./web-enum.sh target.tld
+$ FORCE=1 ./recon-raptor.sh target.tld
 ```
 
 Every run appends to `results/<host>/.runs.log` (timestamp, steps, resolved URL)
 and rewrites `results/<host>/00_summary.txt`.
+
+---
+
+## ▚ Files
+
+| File | What it does |
+|------|--------------|
+| `recon-raptor.sh` | Full pipeline: reachability check (HTTPS auto-probe), DNS/whois, subdomain enum, nmap, HTTP fingerprint, robots, dir brute, nikto, nuclei, plus a `00_summary.txt` roll-up. Per-step timeouts; skips missing tools gracefully; **resumes** completed steps (`FORCE=1` to redo). Emits **structured output** (nmap XML, nikto JSON, nuclei JSONL) alongside human-readable text. |
+| `oneliner.sh` | Compact chain (subdomains + nuclei) for quick runs; guards each tool. |
+| `recon-raptor-gui.py` | Hacker-themed Tkinter console (Scan / Dashboard / Results) with presets, an options panel, colour-coded live output, a severity dashboard, and one-click HTML report. Wraps `recon-raptor.sh`. |
+| `report.py` | Parses a results folder (prefers structured output, falls back to text), ranks findings by severity, renders a self-contained HTML report **and** a machine-readable `report.json`. |
+| `tests/` | `unittest` suite for `report.py`'s parsers. |
 
 ---
 
@@ -171,8 +200,6 @@ and rewrites `results/<host>/00_summary.txt`.
 - Wordlist at `/usr/share/wordlists/dirb/common.txt` (override `WL_DIR=…`)
 - Subdomain wordlist for the ffuf fallback (override `SUB_WL=…`)
 
-Missing tools are skipped gracefully — you don't need all of them.
-
 ---
 
 ## ▚ Tests
@@ -183,6 +210,12 @@ $ python3 -m unittest discover -s tests -v
 
 Covers the report parsers: structured (nmap XML / nikto JSON / nuclei JSONL),
 text fallback, header checks, and severity-inference edge cases.
+
+---
+
+## ▚ License
+
+[MIT](LICENSE) — for authorized security testing only.
 
 ---
 
