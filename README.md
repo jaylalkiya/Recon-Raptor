@@ -1,113 +1,191 @@
-# web-enum
+<div align="center">
 
-Web enumeration wrapper scripts for Kali Linux. Chains common recon tools
-(nmap, whatweb, curl, gobuster/feroxbuster, nikto) and saves each step's output
-to a per-target results folder.
+```
+██     ██ ███████ ██████       ███████ ███    ██ ██    ██ ███    ███
+██     ██ ██      ██   ██      ██      ████   ██ ██    ██ ████  ████
+██  █  ██ █████   ██████       █████   ██ ██  ██ ██    ██ ██ ████ ██
+██ ███ ██ ██      ██   ██      ██      ██  ██ ██ ██    ██ ██  ██  ██
+ ███ ███  ███████ ██████       ███████ ██   ████  ██████  ██      ██
+```
 
-> **Authorized use only.** Run these only against systems you own or have
-> explicit written permission to test. Unauthorized scanning is illegal.
+**`[ chained web recon for Kali — one target in, a ranked report out ]`**
 
-## Files
+![Shell](https://img.shields.io/badge/shell-bash-1f8a12?style=flat-square&logo=gnubash&logoColor=39ff14&labelColor=0a0e0a)
+![Python](https://img.shields.io/badge/python-3-1f8a12?style=flat-square&logo=python&logoColor=39ff14&labelColor=0a0e0a)
+![Platform](https://img.shields.io/badge/platform-Kali%20Linux-1f8a12?style=flat-square&logo=kalilinux&logoColor=39ff14&labelColor=0a0e0a)
+![GUI](https://img.shields.io/badge/GUI-Tkinter-1f8a12?style=flat-square&labelColor=0a0e0a)
+![Tests](https://img.shields.io/badge/tests-passing-39ff14?style=flat-square&labelColor=0a0e0a)
+![License](https://img.shields.io/badge/use-authorized%20only-ff3860?style=flat-square&labelColor=0a0e0a)
 
-| File          | What it does                                              |
-|---------------|----------------------------------------------------------|
-| `web-enum.sh` | Full script: reachability check (with HTTPS auto-probe), DNS/whois, subdomain enum, nmap, HTTP fingerprint, robots, dir brute, nikto, nuclei, plus a `00_summary.txt` roll-up. Per-step timeouts; skips any missing tool gracefully; **resumes** by skipping steps whose output already exists (`FORCE=1` to redo). Emits **structured output** (nmap XML, nikto JSON, nuclei JSONL) alongside the human-readable text. |
+</div>
+
+---
+
+> ```
+> [!] AUTHORIZED USE ONLY
+> ```
+> Run these **only** against systems you own or have **explicit written
+> permission** to test. Unauthorized scanning is illegal.
+
+`web-enum` chains the common recon tools (`nmap`, `whatweb`, `curl`,
+`gobuster`/`feroxbuster`, `nikto`, `nuclei`, `subfinder`/`httpx`) into a single
+run, saves every step to a per-target folder, and rolls the findings up into a
+severity-ranked HTML + JSON report — from the CLI or a dark, terminal-style GUI.
+
+---
+
+## ▚ Screenshots
+
+<div align="center">
+
+**Scan** — presets, per-step toggles, options, live colour-coded output
+![Scan tab](docs/screenshots/scan.png)
+
+**Dashboard** — priority cards, severity tiles, findings ranked highest-first
+![Dashboard tab](docs/screenshots/dashboard.png)
+
+**Results** — browse every output file inline, colour-coded
+![Results tab](docs/screenshots/results.png)
+
+**HTML report** — self-contained, shareable, ranked by what to fix first
+![HTML report](docs/screenshots/report.png)
+
+</div>
+
+> These are theme-accurate mockups. To drop in real captures, run the GUI and
+> overwrite the files in `docs/screenshots/` (e.g. `import -window root docs/screenshots/scan.png`).
+
+---
+
+## ▚ Files
+
+| File | What it does |
+|------|--------------|
+| `web-enum.sh` | Full pipeline: reachability check (HTTPS auto-probe), DNS/whois, subdomain enum, nmap, HTTP fingerprint, robots, dir brute, nikto, nuclei, plus a `00_summary.txt` roll-up. Per-step timeouts; skips missing tools gracefully; **resumes** by skipping completed steps (`FORCE=1` to redo). Emits **structured output** (nmap XML, nikto JSON, nuclei JSONL) alongside human-readable text. |
 | `oneliner.sh` | Compact chain (subdomains + nuclei) for quick runs; guards each tool. |
-| `web-enum-gui.py` | Hacker-themed Tkinter GUI (Scan / Dashboard / Results tabs): presets, an **options** panel (wordlist, timeouts, force re-scan), colour-coded live output, findings dashboard by severity, one-click HTML report. Wraps `web-enum.sh`. |
-| `report.py` | Parses a results folder (preferring structured tool output, falling back to text), ranks findings by severity, and renders a self-contained HTML report plus a machine-readable `report.json`. Usable from the GUI or standalone. |
-| `tests/` | `unittest` suite for `report.py`'s parsers (`python3 -m unittest discover -s tests`). |
+| `web-enum-gui.py` | Hacker-themed Tkinter console (Scan / Dashboard / Results) with presets, an options panel (wordlist, timeouts, force re-scan), colour-coded live output, a severity dashboard, and one-click HTML report. Wraps `web-enum.sh`. |
+| `report.py` | Parses a results folder (prefers structured tool output, falls back to text), ranks findings by severity, renders a self-contained HTML report **and** a machine-readable `report.json`. |
+| `tests/` | `unittest` suite for `report.py`'s parsers. |
 
-## Usage
+---
 
-```bash
-chmod +x web-enum.sh oneliner.sh
+## ▚ Quick start
 
-# Full run
-./web-enum.sh example.com
-./web-enum.sh https://10.10.10.10 results/box1
+```console
+$ chmod +x web-enum.sh oneliner.sh
 
-# Quick one-liner
-./oneliner.sh 10.10.10.10
+# Full run (writes results/<host>/)
+$ ./web-enum.sh example.com
+$ ./web-enum.sh https://10.10.10.10 results/box1
+
+# Quick one-liner chain
+$ ./oneliner.sh 10.10.10.10
 
 # GUI (desktop app)
-python3 web-enum-gui.py
+$ python3 web-enum-gui.py
 ```
 
-Results are written under `results/<host>/`.
+Results land under `results/<host>/`, with `00_summary.txt` as the roll-up.
 
-## GUI
+---
 
-`web-enum-gui.py` is a dark, terminal-style front-end for `web-enum.sh` with two tabs:
+## ▚ GUI
 
-**Scan tab**
-- Enter the **target** (Enter key runs it) and, optionally, an **output dir**.
-- One-click **presets** — `Quick` (http/nmap/dirb), `Recon` (dns/subs/http), `Full` (everything) — or tick individual **scan steps** (All / None buttons too).
-- **Run** streams **colour-coded** output live with an elapsed **timer**; **Stop** SIGTERMs the whole process group and escalates to SIGKILL if it hangs.
+A dark, terminal-style front-end for `web-enum.sh` with three tabs.
 
-**Dashboard tab** — see what matters, ranked:
-- Three priority cards — **HIGH PRIORITY** (critical + high), **MEDIUM**, **LOW / INFO** — plus per-severity tiles and asset counts (open ports, subdomains, live hosts).
-- A **findings table ordered by severity** (colour-coded), parsed from Nuclei, Nikto, and HTTP security-header checks.
-- **📄 Generate HTML report** writes a self-contained, styled `report.html` into the target folder; **Open report** opens it in your browser.
+**`Scan`**
+- Enter the **target** (Enter runs it) and, optionally, an **output dir**.
+- One-click **presets** — `Quick` (http/nmap/dirb), `Recon` (dns/subs/http),
+  `Full` — or tick individual **steps** (All / None too).
+- An **options** panel for wordlist, network/step timeouts, and force re-scan.
+- **Run** streams **colour-coded** output live with an elapsed timer; **Stop**
+  SIGTERMs the whole process group, escalating to SIGKILL if it hangs.
 
-**Results tab** — no more opening 12 files by hand:
-- Pick a **target** from the dropdown; every output file is listed with a friendly name (empty files marked `∅`).
-- Click any file to **read it inline**, colour-coded (findings highlighted). The `00_summary.txt` opens automatically.
-- **⟳ Refresh** rescans the folder (auto-refreshes when a scan finishes); **Open folder** opens it in your file manager.
+**`Dashboard`**
+- Priority cards — **HIGH** (critical+high), **MEDIUM**, **LOW/INFO** — plus
+  per-severity tiles and asset counts (open ports, subdomains, live hosts).
+- A **findings table ordered by severity**, parsed from Nuclei, Nikto, and
+  HTTP security-header checks.
+- **Generate HTML report** → self-contained `report.html` (+ `report.json`);
+  **Open report** launches it in your browser.
 
-### HTML report (also standalone)
-
-```bash
-# after a scan, build a ranked HTML report (also writes report.json beside it)
-python3 report.py results/example.com          # -> results/example.com/report.{html,json}
-python3 report.py results/example.com out.html  # custom path (+ out.json)
-python3 report.py results/example.com --json    # JSON only, no HTML
-```
-
-`report.py` prefers structured tool output when present — `04_nmap.xml`,
-`10_nikto.json`, `11_nuclei.jsonl` — and falls back to parsing the plain-text
-files, so reports from older result folders still work.
-
-The report groups findings into **HIGH PRIORITY / MEDIUM / LOW-INFO** buckets so you
-can see at a glance what to act on first, and lists open ports, subdomains and live hosts.
-
-It works by setting the `RUN_STEPS` env var (comma-separated tokens
-`dns,subs,nmap,http,dirb,nikto,nuclei`, or `all`) which `web-enum.sh` reads —
-so the CLI honors it too:
-
-```bash
-RUN_STEPS=nmap,nuclei ./web-enum.sh target.tld
-```
+**`Results`**
+- Pick a target; every output file is listed with a friendly name
+  (empty files marked `∅`). Click to read inline, colour-coded. Shows last-run
+  time from `.runs.log`.
 
 Requires `python3-tk` (`sudo apt install python3-tk` — usually preinstalled on Kali).
 
-## Requirements (all standard on Kali)
+---
 
-- `nmap`, `whatweb`, `curl`, `nikto`
-- `gobuster` or `feroxbuster` for content discovery
-- `dnsutils` / `whois` for DNS lookups
-- `subfinder` / `assetfinder` (passive) or `ffuf` (active DNS brute) + `httpx` for subdomain enum
-- `nuclei` for template-based vuln scanning (run `nuclei -update-templates` first)
-- Wordlist at `/usr/share/wordlists/dirb/common.txt` (override with `WL_DIR=...`)
-- Subdomain wordlist for the ffuf fallback (override with `SUB_WL=...`)
+## ▚ Reports (standalone)
 
-## Customizing
-
-```bash
-# Use a different wordlist
-WL_DIR=/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt ./web-enum.sh target.tld
-
-# Tune timeouts (seconds): per-request network timeout, hard cap per step,
-# and nikto's own scan budget
-NET_TIMEOUT=30 STEP_TIMEOUT=900 NIKTO_TIMEOUT=300 ./web-enum.sh target.tld
-
-# Resume a partial run (skips steps whose output already exists) ...
-./web-enum.sh target.tld
-# ... or force a full re-scan, overwriting previous output
-FORCE=1 ./web-enum.sh target.tld
+```console
+$ python3 report.py results/example.com          # -> report.html + report.json
+$ python3 report.py results/example.com out.html  # custom path (+ out.json)
+$ python3 report.py results/example.com --json    # JSON only
 ```
 
-Every run also appends a line to `results/<host>/.runs.log` (timestamp, steps,
-resolved URL) so you have a simple history of what was scanned when.
+`report.py` prefers structured tool output — `04_nmap.xml`, `10_nikto.json`,
+`11_nuclei.jsonl` — and falls back to parsing the plain-text files, so reports
+from older result folders still work. Findings are bucketed into
+**HIGH PRIORITY / MEDIUM / LOW-INFO** so you see what to act on first.
 
-Every run also writes `results/<host>/00_summary.txt` — a quick roll-up of
-subdomains, live hosts, open ports and Nuclei findings.
+Pick which steps run via the `RUN_STEPS` env var (comma-separated tokens
+`dns,subs,nmap,http,dirb,nikto,nuclei`, or `all`) — the GUI sets this, and the
+CLI honours it too:
+
+```console
+$ RUN_STEPS=nmap,nuclei ./web-enum.sh target.tld
+```
+
+---
+
+## ▚ Customizing
+
+```console
+# Different wordlist
+$ WL_DIR=/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt ./web-enum.sh target.tld
+
+# Tune timeouts (seconds): per-request, hard cap per step, nikto's own budget
+$ NET_TIMEOUT=30 STEP_TIMEOUT=900 NIKTO_TIMEOUT=300 ./web-enum.sh target.tld
+
+# Resume a partial run (skips completed steps) ...
+$ ./web-enum.sh target.tld
+# ... or force a full re-scan
+$ FORCE=1 ./web-enum.sh target.tld
+```
+
+Every run appends to `results/<host>/.runs.log` (timestamp, steps, resolved URL)
+and rewrites `results/<host>/00_summary.txt`.
+
+---
+
+## ▚ Requirements (all standard on Kali)
+
+- `nmap`, `whatweb`, `curl`, `nikto`
+- `gobuster` **or** `feroxbuster` for content discovery
+- `dnsutils` / `whois` for DNS lookups
+- `subfinder` / `assetfinder` (passive) **or** `ffuf` (active DNS brute) + `httpx`
+- `nuclei` for template scanning (`nuclei -update-templates` first)
+- Wordlist at `/usr/share/wordlists/dirb/common.txt` (override `WL_DIR=…`)
+- Subdomain wordlist for the ffuf fallback (override `SUB_WL=…`)
+
+Missing tools are skipped gracefully — you don't need all of them.
+
+---
+
+## ▚ Tests
+
+```console
+$ python3 -m unittest discover -s tests -v
+```
+
+Covers the report parsers: structured (nmap XML / nikto JSON / nuclei JSONL),
+text fallback, header checks, and severity-inference edge cases.
+
+---
+
+<div align="center">
+<sub><code>stay legal // scan only what you're allowed to</code></sub>
+</div>
