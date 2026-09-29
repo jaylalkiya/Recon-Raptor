@@ -1,17 +1,8 @@
 <div align="center">
 
-```
- ____                      ____             _
-|  _ \ ___  ___ ___  _ __ |  _ \ __ _ _ __ | |_ ___  _ __
-| |_) / _ \/ __/ _ \| '_ \| |_) / _` | '_ \| __/ _ \| '__|
-|  _ <  __/ (_| (_) | | | |  _ < (_| | |_) | || (_) | |
-|_| \_\___|\___\___/|_| |_|_| \_\__,_| .__/ \__\___/|_|
-                                     |_|
-```
+<img src="docs/banner.png" alt="ReconRaptor — chained web recon for Kali" width="100%">
 
-# ReconRaptor
-
-**`[ chained web recon for Kali — one target in, a ranked report out ]`**
+<br><br>
 
 ![Shell](https://img.shields.io/badge/shell-bash-1f8a12?style=flat-square&logo=gnubash&logoColor=39ff14&labelColor=0a0e0a)
 ![Python](https://img.shields.io/badge/python-3-1f8a12?style=flat-square&logo=python&logoColor=39ff14&labelColor=0a0e0a)
